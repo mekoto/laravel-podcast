@@ -34,4 +34,5 @@ Route::resource('/podcasts', 'PodcastsController');
 Route::get('/podcast/search', 'PodcastItemsController@search');
 Route::post('/podcast/mark-as-read', 'PodcastItemsController@markAsRead');
 Route::post('/podcast/mark-as-favorite', 'PodcastItemsController@markAsFavorite');
+Route::post('/podcast/save', 'PodcastItemsController@save');
 Route::post('/podcast/mark-all-prev-read', 'PodcastItemsController@markAllPrevAsRead');

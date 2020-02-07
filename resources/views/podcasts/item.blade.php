@@ -62,6 +62,18 @@
                 <span class="sr-only">Download</span>
               </a>
             </li>
+            @if($item->is_saved == 1)
+            <li class='play' data-src='{{ url("/").$item->saved_audio_url }}' data-toggle="tooltip" data-placement="bottom" title="Play Local">
+              <i class="fa far fa-play-circle" aria-hidden="true"></i>
+              <span class="sr-only">Play Local</span>
+            </li>
+            @else
+            <li class='save' data-target="#submitDownload" data-src="{{$item->id}}" data-title="{{$item->title}}" title="Save Copy">
+                    <i class="fa fa-fas fa-download" aria-hidden="true"></i>
+                <span class="sr-only">Download</span>
+              </a>
+            </li>
+            @endif
         </ul>
     </div>
   </div>

@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use App\PodcastItem;
 use Auth;
+use App\Jobs\savePodcast;
 
 class PodcastItemsController extends Controller
 {
@@ -16,7 +17,7 @@ class PodcastItemsController extends Controller
      * @return void
      */
     public function __construct() {
-        $this->middleware('auth');
+         $this->middleware('auth');
     }
 
     /**
@@ -132,6 +133,31 @@ class PodcastItemsController extends Controller
             'items' => $items,
             'query' => $query,
         ]);
+    }
+
+    public function save(Request $request) {
+
+        $podcastItemId = trim(strip_tags($request->itemId));
+        $uid = Auth::user()->id;
+
+        $item = DB::table('podcast_items')->select('user_id')
+                                  ->where('user_id', '=', $uid)
+                                  ->where('id', '=', $podcastItemId)
+                                  ->first();
+
+        // if item with id exists in DB and is owned by the authenticated user
+        if ($item) {
+            $podcastItem = PodcastItem::findOrFail($podcastItemId);
+            // $podcastItem->is_mark_as_read = 1;
+            // $podcastItem->save();
+            $podcast = array(
+              'podcastItemId' => $podcastItemId,
+              'user_id' => $uid);
+
+            savePodcast::dispatch($podcast);
+
+        }
+
     }
 
 }

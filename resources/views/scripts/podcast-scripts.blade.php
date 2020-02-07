@@ -59,6 +59,28 @@
         });
       });
 
+      // Modal Confirm form trigger
+      $('.save').on('click', function(){
+        var itemId = $(this).attr('data-src');
+        // Mark as Read AJAX Form Actions
+        console.log("I am HERE");
+         $.ajax({
+            type: "POST",
+            cache: false,
+            url: "/podcast/save",
+            data: {
+                'itemId': itemId,
+                '_token': "{{ csrf_token() }}"
+            },
+            success: function(result) {
+              if(result.status === 1)
+              {
+                  console.log(result);
+              }
+            }
+        });
+      });
+
       // Mark ALL as Read Modal
       $('#confirmAllRead').on('show.bs.modal', function (e) {
         var form = $(e.relatedTarget).attr('data-src');

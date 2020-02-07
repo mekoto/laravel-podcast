@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\File;
+use App\Jobs\savePodcast;
 use App\PodcastItem;
 use App\Podcast;
 use Auth;
@@ -144,6 +145,13 @@ class PodcastsController extends Controller
             $feed->handle_content_type();
             $podcastName = $feed->get_title();
 
+            if ($request->save == 1)
+            {
+                $save = 1;
+            } else {
+                $save = 0;
+            }
+
             if ($podcastName && $podcastName != '') {
                 // check if the feed's first item has an audio file in its enclosure
                 if (strpos($feed->get_items()[0]->get_enclosure()->get_type(), 'audio') !== false) {
@@ -158,12 +166,13 @@ class PodcastsController extends Controller
                         'machine_name' => $podcastMachineName,
                         'feed_url' => $request->feed_url,
                         'feed_thumbnail_location' => 'images/' . $podcastMachineName . '.png',
+                        'save' => $save,
                         'user_id' => $user->id,
                         'web_url' => $feed->get_link(),
                     ]);
 
                     foreach ($feed->get_items() as $item) {
-                        PodcastItem::create([
+                        $item = PodcastItem::create([
                             'podcast_id' => DB::table('podcasts')
                                 ->select('id', 'machine_name')
                                 ->where('machine_name', '=', $podcastMachineName)->first()->id,
@@ -174,6 +183,11 @@ class PodcastsController extends Controller
                             'description' => trim(strip_tags(str_limit($item->get_description(), 200))),
                             'published_at' => $item->get_date('Y-m-d H:i:s'),
                         ]);
+
+                    $podcast = array(
+                      'podcastItemId' => $item->id,
+                      'user_id' => $user->id);
+                        savePodcast::dispatch($podcast);
                     }
 
                     // @todo Podcast was added
